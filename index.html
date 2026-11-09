@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>andropic GO</title>
+<style>
+:root{
+  --bg:#0B0616; --card:rgba(255,255,255,.055); --line:rgba(255,255,255,.10);
+  --violet:#b44cff; --violet2:#7c3aed; --cyan:#22e6ff; --pink:#ff3ea5; --ok:#3dffb0; --bad:#ff5c7a;
+  --text:#f3eefe; --mut:#9d92b8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+body::before,body::after{content:"";position:fixed;width:340px;height:340px;border-radius:50%;filter:blur(90px);opacity:.55;z-index:0;pointer-events:none}
+body::before{background:var(--violet2);top:-120px;left:-100px}
+body::after{background:#0aa7c9;bottom:-140px;right:-120px;opacity:.35}
+#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}
+header{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 18px 6px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:.3px}
+.logo i{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--violet),var(--cyan));box-shadow:0 0 22px rgba(180,76,255,.65)}
+.logo b{background:linear-gradient(90deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo em{font-style:normal;color:var(--violet);text-shadow:0 0 14px var(--violet)}
+.pill{font-size:12px;padding:6px 11px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--mut);display:flex;gap:7px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--bad);box-shadow:0 0 10px var(--bad)}
+.dot.on{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+main{flex:1;overflow-y:auto;padding:8px 16px 16px;-webkit-overflow-scrolling:touch}
+.screen{display:none;animation:in .35s ease}
+.screen.active{display:block}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;margin-bottom:14px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;border-radius:22px;padding:1px;
+  background:linear-gradient(135deg,rgba(180,76,255,.55),transparent 40%,rgba(34,230,255,.4));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+h2{margin:0 0 12px;font-size:15px;font-weight:700;letter-spacing:.4px;color:#fff;display:flex;justify-content:space-between;align-items:center}
+h2 small{font-weight:500;color:var(--mut);font-size:12px}
+.topo{width:100%;height:auto;display:block}
+.link{stroke:rgba(255,255,255,.14);stroke-width:2;fill:none}
+.link.on{stroke:var(--cyan);stroke-dasharray:6 8;animation:flow 1.1s linear infinite;filter:drop-shadow(0 0 5px var(--cyan))}
+.link.pc.on{stroke:var(--violet);filter:drop-shadow(0 0 5px var(--violet))}
+@keyframes flow{to{stroke-dashoffset:-28}}
+.node circle.ring{fill:rgba(20,12,40,.9);stroke:rgba(255,255,255,.2);stroke-width:2}
+.node.on circle.ring{stroke:var(--cyan);filter:drop-shadow(0 0 9px var(--cyan))}
+.node.me circle.ring{stroke:var(--violet);filter:drop-shadow(0 0 10px var(--violet))}
+.node text{fill:#fff;font-size:11px;text-anchor:middle;font-weight:600}
+.node .ico{stroke:#fff;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.btn{border:0;border-radius:16px;padding:13px 16px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--violet2),var(--violet));box-shadow:0 6px 22px rgba(124,58,237,.45);transition:transform .12s}
+.btn:active{transform:scale(.96)}
+.btn.ghost{background:var(--card);border:1px solid var(--line);box-shadow:none}
+.btn.cy{background:linear-gradient(135deg,#0aa7c9,var(--cyan));color:#04121a;box-shadow:0 6px 22px rgba(34,230,255,.35)}
+.btn.full{width:100%}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 5px}
+input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.28);color:#fff;font-size:15px;outline:none}
+input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(180,76,255,.25)}
+.sw{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:14px}
+.tg{width:50px;height:28px;border-radius:99px;background:rgba(255,255,255,.14);position:relative;transition:.25s;flex:none}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.25s}
+.tg.on{background:var(--violet)}
+.tg.on::after{left:25px}
+.dev{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:rgba(0,0,0,.25);margin-top:8px;border:1px solid var(--line)}
+.dev b{display:block;font-size:14px}.dev span{font-size:12px;color:var(--mut)}
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g{text-align:center}
+.g svg{width:100%;max-width:96px}
+.g .bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:9}
+.g .fg{fill:none;stroke-width:9;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .8s ease;filter:drop-shadow(0 0 5px currentColor)}
+.g .v{fill:#fff;font-size:19px;font-weight:800;text-anchor:middle}
+.g p{margin:2px 0 0;font-size:12px;color:var(--mut)}
+.power{width:150px;height:150px;border-radius:50%;margin:8px auto 14px;display:grid;place-items:center;border:2px solid var(--line);
+  background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.1),rgba(0,0,0,.35));transition:.3s;cursor:pointer}
+.power svg{width:58px;height:58px;stroke:var(--mut);stroke-width:2.4;fill:none;stroke-linecap:round;transition:.3s}
+.power.on{border-color:var(--pink);box-shadow:0 0 45px rgba(255,62,165,.6),inset 0 0 35px rgba(255,62,165,.25)}
+.power.on svg{stroke:var(--pink);filter:drop-shadow(0 0 8px var(--pink))}
+.spark{width:100%;height:80px}
+.chat{display:flex;flex-direction:column;height:calc(100vh - 290px);min-height:260px}
+.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:2px}
+.m{max-width:80%;padding:10px 13px;border-radius:18px;font-size:14px;line-height:1.35;word-wrap:break-word}
+.m.me{align-self:flex-end;background:linear-gradient(135deg,var(--violet2),var(--violet));border-bottom-right-radius:5px}
+.m.pc{align-self:flex-start;background:rgba(34,230,255,.14);border:1px solid rgba(34,230,255,.3);border-bottom-left-radius:5px}
+.m small{display:block;opacity:.6;font-size:10px;margin-top:3px}
+.empty{color:var(--mut);text-align:center;font-size:13px;padding:24px 10px}
+nav{display:flex;justify-content:space-around;padding:8px 8px calc(env(safe-area-inset-bottom) + 8px);
+  background:rgba(14,8,28,.85);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line)}
+nav button{background:none;border:0;color:var(--mut);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;padding:6px 10px;border-radius:14px;transition:.2s}
+nav button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav button.active{color:#fff;background:rgba(180,76,255,.22)}
+nav button.active svg{stroke:var(--cyan);filter:drop-shadow(0 0 6px var(--cyan))}
+#toast{position:fixed;left:50%;bottom:92px;transform:translate(-50%,30px);opacity:0;background:rgba(30,18,58,.96);border:1px solid var(--violet);
+  padding:11px 18px;border-radius:99px;font-size:13px;transition:.3s;z-index:9;pointer-events:none;max-width:88%;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.hint{font-size:12px;color:var(--mut);line-height:1.5}
+.spin{animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="logo"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i><span><b>andropic</b> <em>GO</em></span></div>
+  <div class="pill"><span class="dot" id="mainDot"></span><span id="mainTxt">офлайн</span></div>
+</header>
+
+<main>
+<!-- ОБЗОР -->
+<section class="screen active" id="s-home">
+  <div class="card">
+    <h2>Связь устройств <small id="myIp"></small></h2>
+    <svg class="topo" viewBox="0 0 340 235">
+      <path id="lPC" class="link pc" d="M170 175 C 120 150, 80 120, 60 82"/>
+      <path id="lAR" class="link" d="M170 175 C 220 150, 260 120, 280 82"/>
+      <path id="lPA" class="link pc" d="M92 55 C 150 25, 190 25, 248 55" style="opacity:0"/>
+      <g class="node" id="nPC" transform="translate(60,55)">
+        <circle class="ring" r="30"/>
+        <g class="ico"><rect x="-13" y="-12" width="26" height="17" rx="3"/><path d="M-7 12h14M0 5v7"/></g>
+        <text y="-40">Компьютер</text>
+      </g>
+      <g class="node" id="nAR" transform="translate(280,55)">
+        <circle class="ring" r="30"/>
+        <g class="ico"><rect x="-9" y="-9" width="18" height="18" rx="3"/><path d="M-5-13v4M0-13v4M5-13v4M-5 9v4M0 9v4M5 9v4M-13-5h4M-13 0h4M-13 5h4M9-5h4M9 0h4M9 5h4"/></g>
+        <text y="-40">Arduino</text>
+      </g>
+      <g class="node me" transform="translate(170,178)">
+        <circle class="ring" r="32"/>
+        <g class="ico"><rect x="-8" y="-14" width="16" height="28" rx="3.5"/><path d="M-2 9h4"/></g>
+        <text y="52">Телефон</text>
+      </g>
+    </svg>
+    <div class="row" style="margin-top:6px">
+      <button class="btn cy" id="btnScan">Найти в сети</button>
+      <button class="btn ghost" onclick="go('set')">Настроить</button>
+    </div>
+    <div id="found"></div>
+  </div>
+  <div class="card">
+    <h2>Как это работает</h2>
+    <p class="hint">1. На ПК запусти <b>server.py</b> и запомни код.<br>2. Прошей ESP32/ESP8266 скетчем из папки <b>arduino</b>.<br>3. Нажми «Найти в сети», выбери устройства, введи код ПК в настройках.</p>
+  </div>
+</section>
+
+<!-- ПК -->
+<section class="screen" id="s-pc">
+  <div class="card">
+    <h2>Состояние ПК <small id="pcName">—</small></h2>
+    <div class="gauges">
+      <div class="g"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="40"/><circle class="fg" id="gCpu" cx="50" cy="50" r="40" style="stroke:var(--violet);color:var(--violet)"/><text class="v" id="vCpu" x="50" y="57">–</text></svg><p>Процессор</p></div>
+      <div class="g"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="40"/><circle class="fg" id="gRam" cx="50" cy="50" r="40" style="stroke:var(--cyan);color:var(--cyan)"/><text class="v" id="vRam" x="50" y="57">–</text></svg><p>Память</p></div>
+      <div class="g"><svg viewBox="0 0 100 100"><circle class="bg" cx="50" cy="50" r="40"/><circle class="fg" id="gBat" cx="50" cy="50" r="40" style="stroke:var(--ok);color:var(--ok)"/><text class="v" id="vBat" x="50" y="57">–</text></svg><p>Батарея</p></div>
+    </div>
+    <p class="hint" id="pcInfo" style="margin:12px 0 0"></p>
+  </div>
+  <div class="card">
+    <h2>Управление</h2>
+    <div class="row"><button class="btn" onclick="pcAction('lock')">Блокировать</button><button class="btn ghost" onclick="pcAction('sleep')">Сон</button></div>
+    <p class="hint" style="margin-top:10px">Работает, если сервер запущен с флагом <b>--actions</b>.</p>
+  </div>
+</section>
+
+<!-- ARDUINO -->
+<section class="screen" id="s-ard">
+  <div class="card" style="text-align:center">
+    <h2>Светодиод <small id="ardInfo">—</small></h2>
+    <div class="power" id="pw" onclick="ledToggle()"><svg viewBox="0 0 24 24"><path d="M12 3v9"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg></div>
+    <p class="hint">Нажми, чтобы включить или выключить встроенный светодиод</p>
+  </div>
+  <div class="card">
+    <h2>Пин вручную</h2>
+    <div class="row">
+      <div><label>Номер пина</label><input id="pinN" type="number" value="2" inputmode="numeric"></div>
+      <div><label>Аналоговый вход</label><input id="anN" type="number" value="0" inputmode="numeric"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" onclick="pinSet(1)">HIGH</button>
+      <button class="btn ghost" onclick="pinSet(0)">LOW</button>
+      <button class="btn cy" onclick="readAnalog()">Читать</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Датчик <small id="anVal">—</small></h2>
+    <svg class="spark" id="spark" viewBox="0 0 300 80" preserveAspectRatio="none">
+      <defs><linearGradient id="gr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22e6ff" stop-opacity=".5"/><stop offset="1" stop-color="#22e6ff" stop-opacity="0"/></linearGradient></defs>
+      <path id="spA" fill="url(#gr)"/><path id="spL" fill="none" stroke="#22e6ff" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ЧАТ -->
+<section class="screen" id="s-chat">
+  <div class="card chat">
+    <h2>Сообщения с ПК</h2>
+    <div class="msgs" id="msgs"><div class="empty">Пока пусто. Напиши что-нибудь — оно появится в консоли ПК.</div></div>
+    <div class="row" style="margin-top:10px;flex:none"><input id="msgIn" placeholder="Сообщение…" style="flex:3"><button class="btn" style="flex:1" onclick="sendMsg()">→</button></div>
+  </div>
+</section>
+
+<!-- НАСТРОЙКИ -->
+<section class="screen" id="s-set">
+  <div class="card">
+    <h2>Компьютер</h2>
+    <label>IP-адрес ПК</label><input id="cPcIp" placeholder="192.168.1.10" inputmode="decimal">
+    <div class="row"><div><label>Порт</label><input id="cPcPort" value="8765" inputmode="numeric"></div><div><label>Код доступа</label><input id="cToken" placeholder="из консоли ПК"></div></div>
+  </div>
+  <div class="card">
+    <h2>Arduino (ESP)</h2>
+    <label>IP-адрес платы</label><input id="cArdIp" placeholder="192.168.1.20" inputmode="decimal">
+    <label>Код доступа платы</label><input id="cArdToken" placeholder="по умолчанию: andropic">
+    <div class="sw"><span>Управлять платой через ПК</span><div class="tg" id="tgVia" onclick="this.classList.toggle('on')"></div></div>
+  </div>
+  <button class="btn full" onclick="saveCfg()">Сохранить и подключиться</button>
+</section>
+</main>
+
+<nav>
+  <button data-s="home" class="active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><path d="M7 7l3 3M17 7l-3 3M12 15v5"/></svg>Обзор</button>
+  <button data-s="pc"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>ПК</button>
+  <button data-s="ard"><svg viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>Arduino</button>
+  <button data-s="chat"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Чат</button>
+  <button data-s="set"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>Опции</button>
+</nav>
+</div>
+<div id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const store = {
+  get(k, d){ try{ const v = JSON.parse(localStorage.getItem(k)); return v === null ? d : v; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+let cfg = Object.assign({pcIp:'', pcPort:8765, token:'', ardIp:'', ardToken:'andropic', viaPc:false}, store.get('cfg', {}));
+let st = {pc:false, ard:false, led:false};
+let cur = 'home', lastMsg = 0, seq = 0, sensor = [];
+const pending = {};
+
+/* ---------- мост к Android ---------- */
+window.__onNative = (id, status, body) => { const p = pending[id]; if(p){ delete pending[id]; p(status, body); } };
+function http(method, url, headers, body){
+  return new Promise(resolve => {
+    const done = (s, b) => { let j = null; try{ j = JSON.parse(b); }catch(e){} resolve({ok: s>=200 && s<300, status:s, text:b, json:j}); };
+    if(window.AndroidBridge){
+      const id = 'r' + (++seq);
+      pending[id] = done;
+      AndroidBridge.http(id, method, url, JSON.stringify(headers||{}), body ? JSON.stringify(body) : '');
+    } else {
+      const ctl = new AbortController(); setTimeout(()=>ctl.abort(), 4000);
+      fetch(url, {method, headers: Object.assign({'Content-Type':'application/json'}, headers||{}), body: body ? JSON.stringify(body) : undefined, signal: ctl.signal})
+        .then(async r => done(r.status, await r.text())).catch(e => done(0, String(e)));
+    }
+  });
+}
+const pcUrl = p => `http://${cfg.pcIp}:${cfg.pcPort||8765}${p}`;
+const pcReq = (p, m='GET', b) => cfg.pcIp ? http(m, pcUrl(p), {'X-Token': cfg.token}, b) : Promise.resolve({ok:false,status:0,text:'',json:null});
+const ardReq = (p) => {
+  if(cfg.viaPc) return pcReq('/api/arduino/' + p);
+  if(!cfg.ardIp) return Promise.resolve({ok:false,status:0,text:'',json:null});
+  return http('GET', `http://${cfg.ardIp}/api/${p}`, {'X-Token': cfg.ardToken});
+};
+
+/* ---------- UI ---------- */
+function toast(t){ const e = $('#toast'); e.textContent = t; e.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(()=>e.classList.remove('show'), 2400); }
+function go(s){
+  cur = s;
+  document.querySelectorAll('.screen').forEach(e => e.classList.toggle('active', e.id === 's-'+s));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.s === s));
+  if(s === 'set') fillCfg();
+  tick();
+}
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => go(b.dataset.s));
+window.__back = () => { if(cur !== 'home'){ go('home'); return true; } return false; };
+
+function render(){
+  $('#nPC').classList.toggle('on', st.pc);
+  $('#nAR').classList.toggle('on', st.ard);
+  $('#lPC').classList.toggle('on', st.pc);
+  $('#lAR').classList.toggle('on', st.ard);
+  const n = (st.pc?1:0) + (st.ard?1:0);
+  $('#mainDot').classList.toggle('on', n > 0);
+  $('#mainTxt').textContent = n === 2 ? 'всё подключено' : n === 1 ? 'частично' : 'офлайн';
+  $('#pw').classList.toggle('on', st.led);
+}
+function ring(id, pct){
+  const c = $(id), len = 2 * Math.PI * 40;
+  c.style.strokeDasharray = len;
+  c.style.strokeDashoffset = len * (1 - Math.max(0, Math.min(100, pct)) / 100);
+}
+function fillCfg(){
+  $('#cPcIp').value = cfg.pcIp; $('#cPcPort').value = cfg.pcPort; $('#cToken').value = cfg.token;
+  $('#cArdIp').value = cfg.ardIp; $('#cArdToken').value = cfg.ardToken;
+  $('#tgVia').classList.toggle('on', !!cfg.viaPc);
+}
+function saveCfg(){
+  cfg.pcIp = $('#cPcIp').value.trim(); cfg.pcPort = parseInt($('#cPcPort').value) || 8765; cfg.token = $('#cToken').value.trim();
+  cfg.ardIp = $('#cArdIp').value.trim(); cfg.ardToken = $('#cArdToken').value.trim() || 'andropic';
+  cfg.viaPc = $('#tgVia').classList.contains('on');
+  store.set('cfg', cfg); toast('Сохранено'); go('home');
+  if(cfg.viaPc && cfg.pcIp && cfg.ardIp) pcReq('/api/config', 'POST', {arduino_ip: cfg.ardIp, arduino_token: cfg.ardToken});
+}
+
+/* ---------- опрос устройств ---------- */
+async function tick(){
+  if(cfg.pcIp){
+    const r = await pcReq('/api/ping'); st.pc = r.ok && r.json && r.json.app === 'andropic';
+  } else st.pc = false;
+  if(cfg.viaPc && st.pc){
+    const r = await ardReq('ping'); st.ard = r.ok;
+  } else if(!cfg.viaPc && cfg.ardIp){
+    const r = await ardReq('ping'); st.ard = r.ok && r.json && r.json.app === 'andropic';
+  } else st.ard = false;
+  render();
+  if(cur === 'pc' && st.pc) pcStatus();
+  if(cur === 'ard' && st.ard) ardStatus();
+  if(cur === 'chat' && st.pc) pollMsgs();
+}
+setInterval(tick, 3500);
+
+async function pcStatus(){
+  const r = await pcReq('/api/status'); if(!r.ok || !r.json) return;
+  const d = r.json;
+  $('#pcName').textContent = d.name || '';
+  $('#vCpu').textContent = d.cpu != null ? Math.round(d.cpu) + '%' : '–'; ring('#gCpu', d.cpu || 0);
+  $('#vRam').textContent = d.ram != null ? Math.round(d.ram) + '%' : '–'; ring('#gRam', d.ram || 0);
+  $('#vBat').textContent = d.battery != null ? Math.round(d.battery) + '%' : '–'; ring('#gBat', d.battery || 0);
+  $('#pcInfo').textContent = [d.os, d.uptime ? 'работает ' + d.uptime : ''].filter(Boolean).join(' · ');
+}
+async function pcAction(a){
+  const r = await pcReq('/api/action', 'POST', {action:a});
+  toast(r.ok ? 'Готово' : (r.json && r.json.error) || 'Не удалось');
+}
+
+/* ---------- Arduino ---------- */
+async function ardStatus(){
+  const r = await ardReq('status'); if(!r.ok || !r.json) return;
+  const d = r.json; st.led = !!d.led;
+  $('#ardInfo').textContent = (d.chip || '') + (d.rssi ? ' · ' + d.rssi + ' dBm' : '');
+  render();
+}
+async function ledToggle(){
+  const r = await ardReq('led?state=toggle');
+  if(r.ok && r.json){ st.led = !!r.json.led; render(); } else toast('Плата не отвечает');
+}
+async function pinSet(v){
+  const n = parseInt($('#pinN').value);
+  const r = await ardReq(`pin?n=${n}&v=${v}`);
+  toast(r.ok ? `Пин ${n} = ${v ? 'HIGH' : 'LOW'}` : 'Плата не отвечает');
+}
+async function readAnalog(){
+  const n = parseInt($('#anN').value) || 0;
+  const r = await ardReq('analog?n=' + n);
+  if(!r.ok || !r.json){ toast('Плата не отвечает'); return; }
+  $('#anVal').textContent = r.json.value;
+  sensor.push(r.json.value); if(sensor.length > 40) sensor.shift();
+  drawSpark();
+}
+function drawSpark(){
+  if(sensor.length < 2) return;
+  const max = Math.max(1023, ...sensor), step = 300 / (sensor.length - 1);
+  const pts = sensor.map((v, i) => [i * step, 76 - (v / max) * 70]);
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  $('#spL').setAttribute('d', line);
+  $('#spA').setAttribute('d', line + ' L300 80 L0 80 Z');
+}
+
+/* ---------- чат ---------- */
+const chatLog = store.get('chat', []);
+function drawMsgs(){
+  const box = $('#msgs');
+  if(!chatLog.length) return;
+  box.innerHTML = '';
+  chatLog.slice(-60).forEach(m => {
+    const d = document.createElement('div');
+    d.className = 'm ' + (m.from === 'me' ? 'me' : 'pc');
+    d.textContent = m.text;
+    const s = document.createElement('small'); s.textContent = m.time; d.appendChild(s);
+    box.appendChild(d);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+const hhmm = () => new Date().toTimeString().slice(0, 5);
+async function sendMsg(){
+  const i = $('#msgIn'), t = i.value.trim(); if(!t) return;
+  const r = await pcReq('/api/message', 'POST', {text: t});
+  if(!r.ok){ toast('ПК не отвечает'); return; }
+  chatLog.push({from:'me', text:t, time:hhmm()}); store.set('chat', chatLog.slice(-100));
+  i.value = ''; drawMsgs();
+}
+$('#msgIn').addEventListener('keydown', e => { if(e.key === 'Enter') sendMsg(); });
+async function pollMsgs(){
+  const r = await pcReq('/api/messages?since=' + lastMsg); if(!r.ok || !r.json) return;
+  let added = false;
+  r.json.messages.forEach(m => {
+    lastMsg = Math.max(lastMsg, m.id);
+    if(m.from === 'pc'){ chatLog.push({from:'pc', text:m.text, time:hhmm()}); added = true; }
+  });
+  if(added){ store.set('chat', chatLog.slice(-100)); drawMsgs(); }
+}
+setInterval(() => { if(st.pc && cur !== 'chat') pollMsgs(); }, 5000);
+
+/* ---------- поиск в сети ---------- */
+$('#btnScan').onclick = () => {
+  if(!window.AndroidBridge){ toast('Поиск работает только в приложении'); return; }
+  const b = $('#btnScan'); b.disabled = true; b.textContent = 'Ищу…';
+  const id = 's' + (++seq);
+  pending[id] = (s, body) => {
+    b.disabled = false; b.textContent = 'Найти в сети';
+    let list = []; try{ list = JSON.parse(body); }catch(e){}
+    const box = $('#found'); box.innerHTML = '';
+    if(!list.length){ box.innerHTML = '<p class="hint" style="margin-top:12px">Ничего не найдено. Проверь, что все устройства в одной Wi-Fi сети.</p>'; return; }
+    list.forEach(d => {
+      const el = document.createElement('div'); el.className = 'dev';
+      const isPc = d.type === 'pc';
+      el.innerHTML = `<div style="font-size:22px">${isPc ? '🖥️' : '🔌'}</div><div style="flex:1"><b>${(d.name || (isPc ? 'Компьютер' : 'Arduino'))}</b><span>${d.ip}:${d.port}</span></div><button class="btn ghost" style="padding:8px 14px">Выбрать</button>`;
+      el.querySelector('button').onclick = () => {
+        if(isPc){ cfg.pcIp = d.ip; cfg.pcPort = d.port; } else { cfg.ardIp = d.ip; }
+        store.set('cfg', cfg);
+        toast((isPc ? 'ПК' : 'Arduino') + ' выбран' + (isPc && !cfg.token ? ': введи код в опциях' : ''));
+        tick();
+      };
+      box.appendChild(el);
+    });
+  };
+  AndroidBridge.scan(id);
+};
+
+/* ---------- старт ---------- */
+if(window.AndroidBridge){ const ip = AndroidBridge.localIp(); if(ip) $('#myIp').textContent = ip; }
+['gCpu','gRam','gBat'].forEach(i => ring('#' + i, 0));
+drawMsgs(); render(); tick();
+</script>
+</body>
+</html>
